@@ -6,10 +6,12 @@ import { NextResponse, type NextRequest } from "next/server";
  * signed-out visitors to /login.
  *
  * This is a gate, not the security boundary. Each page and API route
- * re-checks the session server-side (see src/lib/auth.ts) — middleware alone
+ * re-checks the session server-side (see src/lib/auth.ts) — the proxy alone
  * would be bypassable and cannot see roles, which live in the database.
+ *
+ * (Next.js 16 renamed the `middleware` file convention to `proxy`.)
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Start from a response that carries the incoming cookies, so anything
   // Supabase refreshes below gets written back to the browser.
   let response = NextResponse.next({ request });

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { AdminSubmissionRow } from "@/lib/supabase/types";
+
 import { durationLabel, formatDate } from "@/lib/dates";
 import { StatusBadge } from "./StatusBadge";
 
@@ -36,11 +37,7 @@ export function SubmissionsTable({ rows }: { rows: AdminSubmissionRow[] }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.id} className="border-b border-line last:border-0 hover:bg-brand-soft/25">
-              <td className={`${TD} font-medium`}>
-                <Link href={`/admin/submissions/${row.id}`} className="hover:text-brand hover:underline">
-                  {row.full_name}
-                </Link>
-              </td>
+              <td className={`${TD} font-medium`}>{row.full_name}</td>
               <td className={`${TD} text-muted`}>{row.email ?? "—"}</td>
               <td className={`${TD} whitespace-nowrap text-muted`}>{row.phone ?? "—"}</td>
               <td className={TD}>{row.domain ?? "—"}</td>

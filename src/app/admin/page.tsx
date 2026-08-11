@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { AdminSubmissionRow } from "@/lib/supabase/types";
 import { relativeTime } from "@/lib/dates";
 import { SubmissionsTable } from "./_components/SubmissionsTable";
+import { SyncButton } from "./_components/SyncButton";
 
 // Always reflect the current database. This page is the operator's view of
 // live state; a cached copy showing a stale status would be actively harmful.
@@ -55,7 +56,7 @@ export default async function AdminPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 text-xs text-muted">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
           {(["new", "generated", "emailed", "email_failed", "revoked"] as const)
             .filter((s) => counts[s])
             .map((s) => (
@@ -66,10 +67,12 @@ export default async function AdminPage() {
         </div>
       </div>
 
+      <SyncButton />
+
       <SubmissionsTable rows={rows} />
 
       <p className="text-xs text-muted">
-        Sync, certificate generation and email sending arrive in the next stages.
+        Certificate generation and email sending arrive in the next stages.
       </p>
     </div>
   );

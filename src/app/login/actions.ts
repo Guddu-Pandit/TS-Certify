@@ -1,0 +1,60 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+
+export interface LoginState {
+  error: string | null;
+}
+
+export async function signIn(_prev: LoginState, formData: FormData): Promise<LoginState> {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const next = String(formData.get("next") ?? "/admin");
+
+  if (!email || !password) {
+    return { error: "Enter both your email and password." };
+  }
+
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error || !data.user) {
+    // Deliberately vague: distinguishing "no such account" from "wrong
+    // password" would let anyone test which emails have accounts.
+    return { error: "Incorrect email or password." };
+  }
+
+  // Valid credentials are not enough — the account must also still be active.
+  // Checked with the service-role key because `profiles` denies everything to
+  // anon and only lets a signed-in user read their own row.
+  const { data: profile } = await supabaseAdmin()
+    .from("profiles")
+    .select("is_active")
+    .eq("id", data.user.id)
+    .maybeSingle<{ is_active: boolean }>();
+
+  if (!profile) {
+    await supabase.auth.signOut();
+    return { error: "This account has no access profile. Ask an admin to re-create it." };
+  }
+  if (!profile.is_active) {
+    await supabase.auth.signOut();
+    return { error: "This account has been deactivated." };
+  }
+
+  revalidatePath("/", "layout");
+  // Only same-site paths, so a crafted ?next=https://evil.example cannot turn
+  // the login form into an open redirect.
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/admin";
+  redirect(safeNext);
+}
+
+export async function signOut() {
+  const supabase = await supabaseServer();
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/login");
+}

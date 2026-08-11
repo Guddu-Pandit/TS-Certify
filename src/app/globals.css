@@ -1,26 +1,42 @@
 @import "tailwindcss";
 
+/*
+  Single light palette. The admin app is a data tool used alongside Supabase
+  and Google Sheets, both of which the user runs in light mode — a dark variant
+  would be extra surface area for no benefit, so this deliberately commits to
+  one look rather than reacting to prefers-color-scheme.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --foreground: #16202e;
+  --muted: #667487;
+  --border: #e3e7ed;
+  --brand: #12284c;
+  --brand-soft: #eef2f9;
+  --accent: #b8892f;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Wide tables scroll inside their own container rather than the page body. */
+.table-scroll {
+  overflow-x: auto;
 }

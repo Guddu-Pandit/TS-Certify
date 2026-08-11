@@ -48,9 +48,9 @@ cp .env.example .env
 Your `.env` should now look like:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://abcdefghijk.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3M...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3M...
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...paste-the-anon-key-here...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...paste-the-service-role-key-here...
 ```
 
 > **The two keys look almost identical — check carefully.** Decode them at [jwt.io](https://jwt.io) if unsure: one says `"role": "anon"`, the other `"role": "service_role"`.
@@ -195,8 +195,8 @@ Open it in a text editor. It looks like:
 **Sheet ID** — look at the spreadsheet's URL:
 
 ```
-https://docs.google.com/spreadsheets/d/1diiQxRhBR8C_-w8IqRg_UrhbSm1m5d4RCUdtqSkYPDs/edit#gid=0
-                                      └──────────── this part is the ID ─────────────┘
+https://docs.google.com/spreadsheets/d/1PASTE_YOUR_16_CHARSQrStUvWxYz0123456789/edit#gid=0
+                                      └────────── this part is the ID ──────────┘
 ```
 
 **Tab name** — the label on the tab at the bottom of the Sheet. Usually `Form Responses 1`. Copy it exactly, including capitals and spaces.
@@ -206,7 +206,7 @@ https://docs.google.com/spreadsheets/d/1diiQxRhBR8C_-w8IqRg_UrhbSm1m5d4RCUdtqSkY
 ```bash
 GOOGLE_SERVICE_ACCOUNT_EMAIL=google-sheet-sync@ts-certify-123456.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBg...\n-----END PRIVATE KEY-----\n"
-GOOGLE_SHEET_ID=1diiQxRhBR8C_-w8IqRg_UrhbSm1m5d4RCUdtqSkYPDs
+GOOGLE_SHEET_ID=1PASTE_YOUR_16_CHARSQrStUvWxYz0123456789
 GOOGLE_SHEET_TAB=Form Responses 1
 ```
 
@@ -268,11 +268,11 @@ Gmail will not accept your normal password from an app. You need an **App Passwo
 
 ```bash
 GMAIL_USER=you@gmail.com
-GMAIL_APP_PASSWORD=abcdefghijklmnop
+GMAIL_APP_PASSWORD=PASTE_YOUR_16_CHARS
 ```
 
 - `GMAIL_USER` is the full Gmail address the App Password belongs to. This is also the address students see the certificate arrive from.
-- `abcd efgh ijkl mnop` becomes `abcdefghijklmnop` — 16 characters, no spaces, no quotes.
+- `abcd efgh ijkl mnop` becomes `PASTE_YOUR_16_CHARS` — 16 characters, no spaces, no quotes.
 
 ## ✅ Check Part 3
 

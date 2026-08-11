@@ -111,7 +111,7 @@ From the JSON file:
 ```bash
 GOOGLE_SERVICE_ACCOUNT_EMAIL=something@your-project.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEv...\n-----END PRIVATE KEY-----\n"
-GOOGLE_SHEET_ID=1diiQxRhBR8C_...
+GOOGLE_SHEET_ID=1PASTE_YOUR_16_CHARSQrStUvWxYz0123456789
 GOOGLE_SHEET_TAB=Form Responses 1
 ```
 
@@ -150,7 +150,7 @@ Unmatched columns are not lost — they're captured into `submissions.extra` aut
 
 ```bash
 GMAIL_USER=you@gmail.com
-GMAIL_APP_PASSWORD=abcdefghijklmnop
+GMAIL_APP_PASSWORD=PASTE_YOUR_16_CHARS
 ```
 
 ### ✅ Check

@@ -26,7 +26,7 @@ const serverSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
 
   GOOGLE_SERVICE_ACCOUNT_EMAIL: z.string().email(),
-  // The JSON key's private_key holds real newlines. Stored in .env.local as a
+  // The JSON key's private_key holds real newlines. Stored in .env as a
   // single quoted line with literal \n, so unescape it here. On Vercel the value
   // is pasted with real newlines and this replace is a harmless no-op.
   GOOGLE_PRIVATE_KEY: z
@@ -61,7 +61,7 @@ function parse<T extends z.ZodTypeAny>(schema: T, source: Record<string, unknown
       .map((i) => `  - ${i.path.join(".") || "(root)"}: ${i.message}`)
       .join("\n");
     throw new Error(
-      `Invalid ${label} environment variables:\n${details}\n\nCheck .env.local against .env.example.`,
+      `Invalid ${label} environment variables:\n${details}\n\nCheck .env against .env.example.`,
     );
   }
   return result.data;

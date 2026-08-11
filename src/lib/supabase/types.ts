@@ -6,6 +6,36 @@
  * column in 001_schema.sql, change it here too.
  */
 
+/**
+ * Who can do what.
+ *   admin — everything, plus creating and deactivating users
+ *   hr    — sync, generate certificates, send emails, view records
+ */
+export type AppRole = "admin" | "hr";
+
+/** public.profiles — role and status for each Supabase Auth user. */
+export interface ProfileRow {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: AppRole;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Capabilities derived from a role, so permission checks read the same everywhere. */
+export function can(role: AppRole) {
+  return {
+    manageUsers: role === "admin",
+    syncSheet: true,
+    generateCertificates: true,
+    sendEmails: true,
+    revokeCertificates: true,
+    editEmailTemplate: true,
+  };
+}
+
 export type SubmissionStatus =
   | "new"
   | "generated"
@@ -25,6 +55,7 @@ export interface SubmissionRow {
   email: string | null;
   phone: string | null;
   domain: string | null;
+  institution: string | null;
   start_date: string | null;
   end_date: string | null;
   extra: Record<string, unknown>;
@@ -47,6 +78,7 @@ export type SubmissionInsert = Pick<
   | "email"
   | "phone"
   | "domain"
+  | "institution"
   | "start_date"
   | "end_date"
   | "extra"
@@ -60,13 +92,15 @@ export interface CertificateRow {
   submission_id: string;
   full_name: string;
   domain: string | null;
+  institution: string | null;
   start_date: string | null;
   end_date: string | null;
   duration_text: string | null;
   issued_on: string;
   version: number;
-  png_path: string | null;
+  /** {year}/{domain-slug}/{certificate_id}.pdf inside the private bucket. */
   pdf_path: string | null;
+  png_path: string | null;
   template_key: string | null;
   revoked_at: string | null;
   revoke_reason: string | null;
@@ -125,6 +159,7 @@ export interface AdminSubmissionRow {
   email: string | null;
   phone: string | null;
   domain: string | null;
+  institution: string | null;
   start_date: string | null;
   end_date: string | null;
   submitted_at: string | null;
@@ -138,6 +173,7 @@ export interface AdminSubmissionRow {
   pdf_path: string | null;
   png_path: string | null;
   revoked_at: string | null;
+  duration_text: string | null;
 
   last_email_at: string | null;
   last_email_status: "sent" | "failed" | null;

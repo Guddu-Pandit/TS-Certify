@@ -85,7 +85,7 @@ ctx.fillText("Authorised Signatory", W - 820, 2160);
 ctx.strokeStyle = "#dddddd";
 ctx.setLineDash([16, 16]);
 ctx.lineWidth = 4;
-ctx.strokeRect(3020, 1950, 340, 340);
+ctx.strokeRect(3020, 1640, 340, 340);
 ctx.setLineDash([]);
 
 mkdirSync("assets/templates", { recursive: true });

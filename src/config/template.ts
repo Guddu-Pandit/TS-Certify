@@ -112,7 +112,9 @@ export const TEMPLATE = {
 
   qr: {
     x: 3020,
-    y: 1950,
+    // Sits above the signature rule (y=2075 on the placeholder) rather than
+    // across it. On your own artwork, reposition with /admin/template.
+    y: 1640,
     size: 340,
     /** Quiet-zone modules. Below ~2 some scanners struggle. */
     margin: 2,

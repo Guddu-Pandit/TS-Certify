@@ -8,6 +8,7 @@
 -- This is what makes NEXT_PUBLIC_SUPABASE_ANON_KEY safe to ship to browsers.
 -- ===========================================================================
 
+alter table public.profiles             enable row level security;
 alter table public.submissions          enable row level security;
 alter table public.certificates         enable row level security;
 alter table public.certificate_counters enable row level security;
@@ -26,6 +27,19 @@ alter table public.email_templates      enable row level security;
 -- with the anon key. That is deliberate: an XSS or a leaked anon key gains
 -- nothing.
 -- ---------------------------------------------------------------------------
+
+-- ---------------------------------------------------------------------------
+-- profiles — a signed-in user may read their OWN row, and nothing else.
+-- The app needs this to know whether the current user is admin or hr.
+-- Nobody can write: roles are changed only through the service-role key, so a
+-- compromised hr session cannot promote itself to admin.
+-- ---------------------------------------------------------------------------
+drop policy if exists "users read own profile" on public.profiles;
+create policy "users read own profile"
+  on public.profiles
+  for select
+  to authenticated
+  using (id = auth.uid());
 
 -- ---------------------------------------------------------------------------
 -- certificates — the single public read in the entire application.

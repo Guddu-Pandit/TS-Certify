@@ -80,22 +80,25 @@ on conflict (key) do nothing;
 -- ---------------------------------------------------------------------------
 insert into public.submissions
   (source_key, source_sheet_id, source_tab, source_row, submitted_at,
-   full_name, email, phone, domain, start_date, end_date, raw)
+   full_name, email, phone, domain, institution, start_date, end_date, raw)
 values
   ('seed-001', 'SEED', 'Form Responses 1', 2, now() - interval '20 days',
    'Aarav Sharma', 'aarav.sharma@example.com', '+91 98765 43210',
-   'Web Development', current_date - 60, current_date - 4,
+   'Web Development', 'Delhi Technological University',
+   current_date - 60, current_date - 4,
    '{"Timestamp":"seed","Full Name":"Aarav Sharma"}'::jsonb),
 
   ('seed-002', 'SEED', 'Form Responses 1', 3, now() - interval '18 days',
    'Priya Venkataraman', 'priya.v@example.com', '+91 91234 56780',
-   'Data Science', current_date - 55, current_date - 3,
+   'Data Science', 'PSG College of Technology',
+   current_date - 55, current_date - 3,
    '{"Timestamp":"seed","Full Name":"Priya Venkataraman"}'::jsonb),
 
   -- Deliberately long name: use this one to check that the renderer shrinks
   -- and wraps text instead of spilling over the template border.
   ('seed-003', 'SEED', 'Form Responses 1', 4, now() - interval '15 days',
    'Lakshminarayanan Balasubramaniam', 'lakshmi.b@example.com', '+91 99887 76655',
-   'Machine Learning', current_date - 50, current_date - 1,
+   'Machine Learning', 'Indian Institute of Information Technology, Allahabad',
+   current_date - 50, current_date - 1,
    '{"Timestamp":"seed","Full Name":"Lakshminarayanan Balasubramaniam"}'::jsonb)
 on conflict (source_key) do nothing;

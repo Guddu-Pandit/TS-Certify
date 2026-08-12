@@ -8,6 +8,67 @@
 create extension if not exists pgcrypto;
 
 -- ---------------------------------------------------------------------------
+-- 0. profiles — who may use the admin app, and what they may do.
+--
+--    Two roles:
+--      admin — full access, plus creating and deactivating other users
+--      hr    — day-to-day work: sync, generate certificates, send emails.
+--              Cannot manage users.
+--
+--    Rows are keyed to auth.users. Supabase Auth owns the password; this
+--    table owns the role. Sign-ups are disabled in the dashboard, so the only
+--    way to get an account is for an admin to create one.
+-- ---------------------------------------------------------------------------
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'app_role') then
+    create type public.app_role as enum ('admin', 'hr');
+  end if;
+end
+$$;
+
+create table if not exists public.profiles (
+  id         uuid primary key references auth.users(id) on delete cascade,
+  email      text not null,
+  full_name  text,
+  role       public.app_role not null default 'hr',
+  -- Deactivating is preferred over deleting: it revokes access immediately
+  -- while keeping the audit trail of what that person did intact.
+  is_active  boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists profiles_role_idx on public.profiles (role);
+
+-- Every auth user automatically gets a profile. Role comes from the metadata
+-- passed at creation time (see scripts/create-user.ts), defaulting to 'hr' so
+-- an account created any other way is never accidentally an admin.
+create or replace function public.handle_new_auth_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, full_name, role)
+  values (
+    new.id,
+    new.email,
+    nullif(new.raw_user_meta_data->>'full_name', ''),
+    coalesce((new.raw_app_meta_data->>'role')::public.app_role, 'hr')
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_auth_user();
+
+-- ---------------------------------------------------------------------------
 -- 1. submissions — PRIVATE. Everything the Google Form collected.
 --    Holds email/phone and a verbatim dump of the sheet row, so nothing in
 --    this table may ever reach a browser. No RLS policy is ever written for
@@ -30,6 +91,7 @@ create table if not exists public.submissions (
   email           text,
   phone           text,
   domain          text,
+  institution     text,                       -- school / college
   start_date      date,
   end_date        date,
 
@@ -96,14 +158,21 @@ create table if not exists public.certificates (
 
   full_name      text not null,
   domain         text,
+  institution    text,                        -- school / college
   start_date     date,
   end_date       date,
   duration_text  text,                        -- e.g. '8 Weeks'
   issued_on      date not null default current_date,
 
   version        int  not null default 1,     -- bumped on re-render
-  png_path       text,                        -- storage object path
+
+  -- Storage object paths inside the private `certificates` bucket, laid out as
+  --   {year}/{domain-slug}/{certificate_id}.pdf
+  -- e.g. 2026/web-development/TS-2026-0001.pdf
+  -- The filename IS the certificate id, which is also what the QR encodes, so
+  -- a scanned code, this row, and the stored file all line up by inspection.
   pdf_path       text,
+  png_path       text,
   template_key   text,                        -- which template config produced it
 
   revoked_at     timestamptz,
@@ -190,6 +259,7 @@ select
   s.email,
   s.phone,
   s.domain,
+  s.institution,
   s.start_date,
   s.end_date,
   s.submitted_at,
@@ -203,6 +273,7 @@ select
   c.pdf_path,
   c.png_path,
   c.revoked_at,
+  c.duration_text,
 
   le.sent_at       as last_email_at,
   le.status        as last_email_status,

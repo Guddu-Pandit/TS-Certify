@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import {
   EDITABLE_FIELDS,
@@ -12,9 +12,12 @@ import {
 import {
   clearManualOverrides,
   updateSubmission,
-  EDIT_IDLE,
   type EditSubmissionState,
 } from "../submissions/actions";
+
+// Lives here, not next to the action: a "use server" module may only export
+// async functions, so a shared constant there breaks the build.
+const IDLE: EditSubmissionState = { error: null, success: null };
 
 /**
  * The shape the dialog needs. Both `AdminSubmissionRow` (from the table) and
@@ -51,11 +54,10 @@ export function EditSubmissionDialog({
   const router = useRouter();
   const [state, formAction] = useActionState<EditSubmissionState, FormData>(
     updateSubmission,
-    EDIT_IDLE,
+    IDLE,
   );
-  const [releaseState, setReleaseState] = useState<EditSubmissionState>(EDIT_IDLE);
+  const [releaseState, setReleaseState] = useState<EditSubmissionState>(IDLE);
   const [releasing, startRelease] = useTransition();
-  const panelRef = useRef<HTMLDivElement>(null);
 
   const overrides = submission.manual_overrides ?? {};
   const overriddenColumns = new Set(Object.keys(overrides));
@@ -110,7 +112,6 @@ export function EditSubmissionDialog({
       }}
     >
       <div
-        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-submission-title"

@@ -6,12 +6,15 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { SubmissionRow } from "@/lib/supabase/types";
 import { EDITABLE_FIELDS, type EditableColumn } from "@/config/editable-fields";
 
+/**
+ * Types are erased at build time, so exporting one from a "use server" file is
+ * fine. A VALUE is not — every runtime export here must be an async function,
+ * which is why the idle state lives in the dialog rather than beside this.
+ */
 export interface EditSubmissionState {
   error: string | null;
   success: string | null;
 }
-
-export const EDIT_IDLE: EditSubmissionState = { error: null, success: null };
 
 /**
  * Both admin and hr may edit. Hiding the button is convenience; this is the

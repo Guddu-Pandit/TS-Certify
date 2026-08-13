@@ -11,7 +11,8 @@
     "check:db": "tsx --conditions=react-server scripts/check-db.ts",
     "check:sheet": "tsx --conditions=react-server scripts/check-sheet.ts",
     "user:create": "tsx --conditions=react-server scripts/create-user.ts",
-    "render:sample": "tsx --conditions=react-server scripts/render-sample.ts"
+    "render:sample": "tsx --conditions=react-server scripts/render-sample.ts",
+    "check:email": "tsx --conditions=react-server scripts/check-email.ts"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.5",

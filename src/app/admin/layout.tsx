@@ -14,9 +14,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <span className="text-base font-bold tracking-tight text-brand">TS-Certify</span>
 
           <nav className="flex items-center gap-1">
-            {/* Entries are added here as each stage lands, so the nav never
-                points at a page that does not exist yet. */}
             <NavLink href="/admin">Submissions</NavLink>
+            <NavLink href="/admin/certificates">Certificates</NavLink>
+            <NavLink href="/admin/settings/email">Email</NavLink>
             <NavLink href="/admin/template">Template</NavLink>
             {/* Hiding this is convenience only — /admin/users re-checks the
                 role server-side, so an hr user typing the URL still gets sent

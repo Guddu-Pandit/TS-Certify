@@ -5,8 +5,12 @@ import { usePathname } from "next/navigation";
 
 export function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const pathname = usePathname();
-  // /admin must match only itself; every other entry also matches its subpages.
-  const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
+  // /admin would otherwise prefix-match every other tab, so it matches only
+  // itself — plus the submission detail pages, which belong to it.
+  const active =
+    href === "/admin"
+      ? pathname === href || pathname.startsWith("/admin/submissions")
+      : pathname.startsWith(href);
 
   return (
     <Link

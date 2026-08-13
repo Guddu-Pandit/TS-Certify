@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { AdminSubmissionRow } from "@/lib/supabase/types";
 import type { GenerateSummary } from "@/lib/certificate/generate";
+import type { SendSummary } from "@/lib/email/send";
 
 const BTN =
   "rounded-lg border border-line px-2.5 py-1 text-xs font-medium transition hover:bg-brand-soft hover:text-brand disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap";
@@ -47,6 +48,48 @@ export function RowActions({ row }: { row: AdminSubmissionRow }) {
           });
           startTransition(() => router.refresh());
         }
+      }
+    } catch {
+      setMessage({ text: "Could not reach the server.", bad: true });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function sendEmail() {
+    if (!row.certificate_id) return;
+
+    // Re-sending is a real action with a real recipient, so confirm it —
+    // especially since regenerating does not recall an already-sent email.
+    if (row.last_email_status === "sent") {
+      const when = row.last_email_at ? new Date(row.last_email_at).toLocaleString() : "earlier";
+      if (!window.confirm(`Already emailed to ${row.last_email_to ?? "them"} on ${when}.\n\nSend again?`)) {
+        return;
+      }
+    }
+
+    setBusy("email");
+    setMessage(null);
+    try {
+      const res = await fetch("/api/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ certificateIds: [row.certificate_id] }),
+      });
+      const data = (await res.json()) as SendSummary & { error?: string };
+
+      if (!res.ok) {
+        setMessage({ text: data.error ?? "Send failed.", bad: true });
+      } else {
+        const result = data.results?.[0];
+        if (!result || result.status === "failed") {
+          setMessage({ text: result?.message ?? "Send failed.", bad: true });
+        } else if (result.status === "skipped") {
+          setMessage({ text: result.message ?? "Skipped.", bad: true });
+        } else {
+          setMessage({ text: `Sent to ${result.to}`, bad: false });
+        }
+        startTransition(() => router.refresh());
       }
     } catch {
       setMessage({ text: "Could not reach the server.", bad: true });
@@ -119,6 +162,19 @@ export function RowActions({ row }: { row: AdminSubmissionRow }) {
             >
               PDF
             </a>
+            <button
+              type="button"
+              className={row.last_email_status === "sent" ? BTN : BTN_PRIMARY}
+              disabled={busy !== null || !row.email}
+              onClick={sendEmail}
+              title={row.email ? `Send to ${row.email}` : "No email address on file"}
+            >
+              {busy === "email"
+                ? "Sending…"
+                : row.last_email_status === "sent"
+                  ? "Resend"
+                  : "Send email"}
+            </button>
             <button type="button" className={BTN} disabled={busy !== null} onClick={revoke}>
               {busy === "revoke" ? "…" : "Revoke"}
             </button>
@@ -129,6 +185,11 @@ export function RowActions({ row }: { row: AdminSubmissionRow }) {
       {message ? (
         <p className={`text-xs ${message.bad ? "text-red-700" : "text-emerald-700"}`}>
           {message.text}
+        </p>
+      ) : row.last_email_status === "failed" && row.last_email_error ? (
+        <p className="text-xs text-red-700" title={row.last_email_error}>
+          Last send failed: {row.last_email_error.slice(0, 70)}
+          {row.last_email_error.length > 70 ? "…" : ""}
         </p>
       ) : null}
     </div>

@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "//scripts": "--conditions=react-server makes the `server-only` import resolve to its empty stub, so these can reuse the app's own modules instead of duplicating them.",
+    "check:db": "tsx --conditions=react-server scripts/check-db.ts",
+    "check:sheet": "tsx --conditions=react-server scripts/check-sheet.ts",
+    "user:create": "tsx --conditions=react-server scripts/create-user.ts"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.5",

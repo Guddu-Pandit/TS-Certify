@@ -4,7 +4,7 @@
 import "server-only";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { publicEnv, serverEnv } from "@/config/env";
+import { publicEnv, supabaseEnv } from "@/config/env";
 
 let cached: SupabaseClient | null = null;
 
@@ -18,7 +18,7 @@ let cached: SupabaseClient | null = null;
 export function supabaseAdmin(): SupabaseClient {
   if (cached) return cached;
 
-  cached = createClient(publicEnv.NEXT_PUBLIC_SUPABASE_URL, serverEnv().SUPABASE_SERVICE_ROLE_KEY, {
+  cached = createClient(publicEnv.NEXT_PUBLIC_SUPABASE_URL, supabaseEnv().SUPABASE_SERVICE_ROLE_KEY, {
     auth: {
       // There is no user session here, and persisting one would be wrong:
       // this client's authority comes from the key, not from a logged-in user.

@@ -33,6 +33,9 @@ export function can(role: AppRole) {
     sendEmails: true,
     revokeCertificates: true,
     editEmailTemplate: true,
+    // Both roles: an hr user is the one working the queue, and a row the form
+    // left incomplete is unusable until someone fills it in.
+    editSubmissions: true,
   };
 }
 
@@ -61,6 +64,14 @@ export interface SubmissionRow {
   extra: Record<string, unknown>;
   raw: Record<string, unknown>;
   notes: string | null;
+  /**
+   * {column: value} for fields a human filled in from /admin. The sync layers
+   * these over the sheet data, so a hand-typed correction is not wiped by the
+   * next run. See supabase/004_manual_edits.sql.
+   */
+  manual_overrides: Record<string, unknown>;
+  edited_at: string | null;
+  edited_by: string | null;
   synced_at: string;
   created_at: string;
   updated_at: string;
@@ -181,6 +192,10 @@ export interface AdminSubmissionRow {
   last_email_to: string | null;
 
   status: SubmissionStatus;
+
+  notes: string | null;
+  manual_overrides: Record<string, unknown>;
+  edited_at: string | null;
 }
 
 /** Storage bucket holding generated certificate files. Private. */

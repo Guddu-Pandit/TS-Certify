@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import type { AdminSubmissionRow } from "@/lib/supabase/types";
 import { durationLabel, formatDate } from "@/lib/dates";
+import { missingFields } from "@/config/editable-fields";
 import { StatusBadge } from "./StatusBadge";
 import { RowActions } from "./RowActions";
 import { BulkBar } from "./BulkBar";
+import { EditSubmissionDialog } from "./EditSubmissionDialog";
 
 const TH =
   "px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-muted whitespace-nowrap";
@@ -21,6 +23,9 @@ export function SubmissionsTable({
   filtered?: boolean;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
+  // One dialog for the whole table rather than one per row — 500 mounted
+  // modals would be 500 forms in the DOM for a thing you open once.
+  const [editing, setEditing] = useState<AdminSubmissionRow | null>(null);
 
   const allSelected = rows.length > 0 && selected.length === rows.length;
 
@@ -81,6 +86,8 @@ export function SubmissionsTable({
           <tbody>
             {rows.map((row) => {
               const isSelected = selected.includes(row.id);
+              const gaps = missingFields(row);
+              const edit = () => setEditing(row);
               return (
                 <tr
                   key={row.id}
@@ -104,19 +111,55 @@ export function SubmissionsTable({
                     >
                       {row.full_name}
                     </Link>
+                    {row.edited_at ? (
+                      <span
+                        className="ml-1.5 text-xs font-normal text-muted"
+                        title="Some fields on this row were filled in by hand"
+                      >
+                        ✎
+                      </span>
+                    ) : null}
                   </td>
-                  <td className={`${TD} text-muted`}>{row.email ?? "—"}</td>
-                  <td className={`${TD} whitespace-nowrap text-muted`}>{row.phone ?? "—"}</td>
-                  <td className={TD}>{row.domain ?? "—"}</td>
-                  <td className={`${TD} text-muted`}>{row.institution ?? "—"}</td>
+                  <td className={`${TD} text-muted`}>
+                    <Cell value={row.email} label="email" onEdit={edit} />
+                  </td>
+                  <td className={`${TD} whitespace-nowrap text-muted`}>
+                    <Cell value={row.phone} label="phone" onEdit={edit} />
+                  </td>
+                  <td className={TD}>
+                    <Cell value={row.domain} label="domain" onEdit={edit} />
+                  </td>
+                  <td className={`${TD} text-muted`}>
+                    <Cell value={row.institution} label="college" onEdit={edit} />
+                  </td>
                   <td className={`${TD} whitespace-nowrap`}>
-                    <div>{durationLabel(row.start_date, row.end_date)}</div>
-                    <div className="text-xs text-muted">
-                      {formatDate(row.start_date)} – {formatDate(row.end_date)}
-                    </div>
+                    {row.start_date && row.end_date ? (
+                      <>
+                        <div>{durationLabel(row.start_date, row.end_date)}</div>
+                        <div className="text-xs text-muted">
+                          {formatDate(row.start_date)} – {formatDate(row.end_date)}
+                        </div>
+                      </>
+                    ) : (
+                      <Cell
+                        value={null}
+                        label={!row.start_date && !row.end_date ? "dates" : !row.start_date ? "start date" : "end date"}
+                        onEdit={edit}
+                      />
+                    )}
                   </td>
                   <td className={TD}>
                     <StatusBadge status={row.status} />
+                    {gaps.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={edit}
+                        className="mt-1 block text-left text-xs text-amber-800 underline-offset-2 hover:underline"
+                        title={`Missing: ${gaps.map((f) => f.label).join(", ")}`}
+                      >
+                        {gaps.length} field{gaps.length === 1 ? "" : "s"} missing
+                      </button>
+                    ) : null}
                   </td>
                   <td className={TD}>
                     {row.certificate_id ? (
@@ -139,7 +182,7 @@ export function SubmissionsTable({
                     ) : null}
                   </td>
                   <td className={TD}>
-                    <RowActions row={row} />
+                    <RowActions row={row} onEdit={edit} />
                   </td>
                 </tr>
               );
@@ -149,6 +192,36 @@ export function SubmissionsTable({
       </div>
 
       <BulkBar selected={selected} rows={rows} onClear={() => setSelected([])} />
+
+      {editing ? (
+        <EditSubmissionDialog submission={editing} onClose={() => setEditing(null)} />
+      ) : null}
     </>
+  );
+}
+
+/**
+ * A value, or the button that fills it in. An em dash tells you something is
+ * absent; this tells you what to do about it, which is the whole point of
+ * noticing at all.
+ */
+function Cell({
+  value,
+  label,
+  onEdit,
+}: {
+  value: string | null;
+  label: string;
+  onEdit: () => void;
+}) {
+  if (value) return <>{value}</>;
+  return (
+    <button
+      type="button"
+      onClick={onEdit}
+      className="rounded border border-dashed border-amber-300 px-1.5 py-0.5 text-xs text-amber-800 transition hover:border-amber-500 hover:bg-amber-50"
+    >
+      + {label}
+    </button>
   );
 }

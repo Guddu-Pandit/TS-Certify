@@ -81,9 +81,36 @@ async function main() {
     fail("storage buckets", bucketErr.message);
   } else {
     const bucket = buckets.find((b) => b.name === "certificates");
-    if (!bucket) fail("bucket 'certificates'", `not found (have: ${buckets.map((b) => b.name).join(", ") || "none"})`);
-    else if (bucket.public) fail("bucket 'certificates'", "exists but is PUBLIC — it must be private");
-    else pass("bucket 'certificates'", "exists and is private");
+    if (!bucket) {
+      fail("bucket 'certificates'", `not found (have: ${buckets.map((b) => b.name).join(", ") || "none"})`);
+    } else if (bucket.public) {
+      fail("bucket 'certificates'", "exists but is PUBLIC — it must be private");
+    } else {
+      pass("bucket 'certificates'", "exists and is private");
+
+      // A MIME allowlist that omits these rejects every upload at the last
+      // step, after the certificate id has already been consumed. Note the
+      // correct type for a PDF is application/pdf — "image/pdf" is not real
+      // and silently blocks everything.
+      const allowed = (bucket as { allowed_mime_types?: string[] | null }).allowed_mime_types;
+      if (!allowed || allowed.length === 0) {
+        pass("bucket accepts PDF + PNG", "no MIME restriction");
+      } else {
+        const missing = ["application/pdf", "image/png"].filter((m) => !allowed.includes(m));
+        if (missing.length) {
+          fail("bucket accepts PDF + PNG", `allowlist is [${allowed.join(", ")}] — missing ${missing.join(", ")}`);
+        } else {
+          pass("bucket accepts PDF + PNG", allowed.join(", "));
+        }
+      }
+
+      const limit = (bucket as { file_size_limit?: number | null }).file_size_limit;
+      if (limit && limit < 10_000_000) {
+        fail("bucket size limit", `${(limit / 1_000_000).toFixed(1)}MB is tight for 300dpi PNGs — allow at least 10MB`);
+      } else {
+        pass("bucket size limit", limit ? `${(limit / 1_000_000).toFixed(0)}MB` : "unlimited");
+      }
+    }
   }
 
   // RLS: anon must see nothing in submissions, and must see certificates.

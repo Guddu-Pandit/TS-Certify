@@ -3,6 +3,7 @@ import type { AdminSubmissionRow } from "@/lib/supabase/types";
 
 import { durationLabel, formatDate } from "@/lib/dates";
 import { StatusBadge } from "./StatusBadge";
+import { RowActions } from "./RowActions";
 
 const TH = "px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-muted whitespace-nowrap";
 const TD = "px-3 py-3 text-sm align-top";
@@ -32,6 +33,7 @@ export function SubmissionsTable({ rows }: { rows: AdminSubmissionRow[] }) {
             <th className={TH}>Duration</th>
             <th className={TH}>Status</th>
             <th className={TH}>Certificate / QR</th>
+            <th className={TH}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -65,6 +67,14 @@ export function SubmissionsTable({ rows }: { rows: AdminSubmissionRow[] }) {
                 ) : (
                   <span className="text-xs text-muted">Not generated</span>
                 )}
+                {row.revoked_at ? (
+                  <div className="mt-0.5 text-xs text-amber-700">revoked</div>
+                ) : row.cert_version && row.cert_version > 1 ? (
+                  <div className="mt-0.5 text-xs text-muted">v{row.cert_version}</div>
+                ) : null}
+              </td>
+              <td className={TD}>
+                <RowActions row={row} />
               </td>
             </tr>
           ))}

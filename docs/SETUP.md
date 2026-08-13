@@ -36,15 +36,16 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...          # SECRET — bypasses all security
 
 ### Run the SQL
 
-**SQL Editor → New query.** Run these three files in order, one at a time:
+**SQL Editor → New query.** Run these four files in order, one at a time:
 
 | Order | File | Creates |
 |---|---|---|
 | 1 | `supabase/001_schema.sql` | Tables, the `TS-2026-0001` ID allocator, the admin view |
 | 2 | `supabase/002_rls.sql` | Locks every table down; opens one public read for the verify page |
 | 3 | `supabase/003_seed.sql` | Default email template + 3 test students |
+| 4 | `supabase/004_manual_edits.sql` | Lets staff fill in fields the form left blank, and keeps those edits through re-syncs |
 
-All three are safe to re-run, so a mistake is recoverable.
+All four are safe to re-run, so a mistake is recoverable.
 
 > Your editor may underline these files in red. That's a SQL Server linter misreading PostgreSQL — `create extension`, `create policy` and `$$` blocks are all valid Postgres. Ignore it.
 

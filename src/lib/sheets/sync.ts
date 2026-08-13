@@ -123,10 +123,21 @@ export async function syncFromSheet(): Promise<SyncResult> {
   const records = [...deduped.values()].map((record) => {
     const manual = overrides.get(record.source_key);
     if (!manual) return record;
+
+    // Only columns this record already carries. PostgREST rejects a bulk
+    // upsert whose objects do not all have the SAME keys (PGRST102), so
+    // merging `notes` — editable, but never written by the sync — into one
+    // record and not the others would fail the entire batch.
+    //
+    // Dropping it costs nothing: a column the sync does not write cannot be
+    // overwritten by the sync, so it needs no protection from it.
+    const applicable = Object.entries(manual).filter(([column]) => column in record);
+    if (applicable.length === 0) return record;
+
     base.preserved += 1;
     // Manual value wins. The sheet is the source of truth right up until a
     // human decides otherwise, and they only do that because it was wrong.
-    return { ...record, ...manual } as typeof record;
+    return { ...record, ...Object.fromEntries(applicable) } as typeof record;
   });
 
   for (let i = 0; i < records.length; i += 200) {

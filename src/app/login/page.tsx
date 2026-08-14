@@ -41,7 +41,7 @@ export default async function LoginPage({
               Welcome back
             </h1>
             <p className="mt-2.5 max-w-[38ch] text-sm leading-relaxed text-[#605d5d]">
-              Sign in to issue, re-send and verify internship certificates.
+              Sign in to review intern submissions, generate certificates and email them out.
             </p>
           </div>
 

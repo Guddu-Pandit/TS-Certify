@@ -6,6 +6,7 @@ import { relativeTime } from "@/lib/dates";
 import { SubmissionsTable } from "./_components/SubmissionsTable";
 import { SyncButton } from "./_components/SyncButton";
 import { Filters } from "./_components/Filters";
+import { StatTiles } from "./_components/StatTiles";
 
 // Always reflect the current database. This is the operator's view of live
 // state; a cached copy showing a stale status would be actively misleading.
@@ -100,16 +101,10 @@ export default async function AdminPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-          {STATUSES.filter((s) => counts[s]).map((s) => (
-            <span key={s} className="rounded-full border border-line bg-surface px-2.5 py-1">
-              {counts[s]} {s.replace("_", " ")}
-            </span>
-          ))}
-        </div>
+        <SyncButton />
       </div>
 
-      <SyncButton />
+      <StatTiles total={everything.length} counts={counts} statuses={STATUSES} />
 
       {/* useSearchParams needs a Suspense boundary during prerender. */}
       <Suspense fallback={<div className="h-9" />}>

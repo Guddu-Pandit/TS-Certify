@@ -1,11 +1,8 @@
 import { cookies } from "next/headers";
 import { requireUser } from "@/lib/auth";
-import {
-  AdminShell,
-  COLLAPSE_COOKIE,
-  NAV_ICONS,
-  type NavItem,
-} from "./_components/AdminShell";
+import { AdminShell } from "./_components/AdminShell";
+// From the plain module, not AdminShell: see the note in nav.ts.
+import { COLLAPSE_COOKIE, NAV_ICONS, type NavItem } from "./_components/nav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // Every /admin page passes through here, so an unauthenticated request never

@@ -4,42 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/app/login/actions";
-
-export interface NavItem {
-  href: string;
-  label: string;
-  /** Inline path data, so the shell pulls in no icon dependency. */
-  icon: string;
-}
-
-/** All 24x24, stroke-based, drawn on one grid so they align optically. */
-export const NAV_ICONS = {
-  inbox: "M3 12h4l2 3h6l2-3h4M5 5h14l2 7v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5l2-7Z",
-  award: "M12 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM8.5 12.5 7 21l5-2.5L17 21l-1.5-8.5",
-  mail: "M3 6h18v12H3zM3 7l9 6 9-6",
-  layout: "M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z",
-  users:
-    "M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.4 4.6a3.5 3.5 0 0 1 0 6.8",
-  /** Brand mark: a shield with a check — the app's whole job is verification. */
-  shield: "M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3ZM9 12l2 2 4-4",
-  collapse: "M4 4v16M19 8l-4 4 4 4M15 12h-5",
-  expand: "M4 4v16M11 8l4 4-4 4M15 12h5",
-  menu: "M4 7h16M4 12h16M4 17h16",
-  close: "M6 6 18 18M18 6 6 18",
-  signOut: "M15 17l5-5-5-5M20 12H9M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6",
-} as const;
+import { COLLAPSE_COOKIE, NAV_ICONS, type NavItem } from "./nav";
 
 /**
- * Collapse preference lives in a cookie rather than localStorage so the layout
- * can read it on the server and render the correct width immediately — no
- * flash of an expanded sidebar on every page load.
+ * Size is set as width/height attributes rather than utility classes: the
+ * value would otherwise live inside a default parameter string, which is not
+ * a reliable place for Tailwind's scanner to find a candidate class.
  */
-export const COLLAPSE_COOKIE = "ts_admin_sidebar";
-
-function Icon({ d, className = "h-[18px] w-[18px]" }: { d: string; className?: string }) {
+function Icon({ d, size = 18, className = "" }: { d: string; size?: number; className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
+      width={size}
+      height={size}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -126,7 +103,7 @@ export function AdminShell({
         >
           <Link href="/admin" className="flex items-center gap-2.5" title="TS-Certify">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand text-accent">
-              <Icon d={NAV_ICONS.shield} className="h-5 w-5" />
+              <Icon d={NAV_ICONS.shield} size={20} />
             </span>
             {railed ? null : (
               <span className="font-display text-[15px] font-bold tracking-tight text-brand">
@@ -230,7 +207,7 @@ export function AdminShell({
             aria-expanded={open}
             className="-ml-1 rounded-lg p-2 text-muted transition hover:bg-brand-soft hover:text-brand lg:hidden"
           >
-            <Icon d={NAV_ICONS.menu} className="h-5 w-5" />
+            <Icon d={NAV_ICONS.menu} size={20} />
           </button>
 
           {collapsed ? (
@@ -240,7 +217,7 @@ export function AdminShell({
               aria-label="Expand sidebar"
               className="hidden rounded-lg p-2 text-muted transition hover:bg-brand-soft hover:text-brand lg:block"
             >
-              <Icon d={NAV_ICONS.expand} className="h-5 w-5" />
+              <Icon d={NAV_ICONS.expand} size={20} />
             </button>
           ) : null}
 

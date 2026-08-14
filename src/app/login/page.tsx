@@ -17,15 +17,15 @@ export default async function LoginPage({
   if (user) redirect("/admin");
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#131211] px-4 py-8 sm:px-10 sm:py-16">
-      <div className="grid w-full max-w-5xl bg-[#f3f2f2] text-[#201e1d] shadow-[0_40px_90px_rgba(0,0,0,0.55)] lg:grid-cols-2">
+    <main className="flex min-h-screen items-center justify-center bg-[#131211] px-4 py-8 sm:px-8 sm:py-12">
+      <div className="grid w-full max-w-310 bg-[#f3f2f2] text-[#201e1d] shadow-[0_40px_90px_rgba(0,0,0,0.55)] lg:grid-cols-2">
         {/* Below lg the columns stack, so the banner leads and the tall
             panel at the end of the grid is hidden. */}
-        <div className="relative h-32 overflow-hidden sm:h-40 lg:hidden">
+        <div className="relative h-40 overflow-hidden sm:h-52 lg:hidden">
           <LoginArt />
         </div>
 
-        <div className="flex flex-col px-6 py-10 sm:px-13 sm:py-14">
+        <div className="flex flex-col px-6 py-12 sm:px-16 sm:py-16">
           <div className="flex items-center gap-2.5">
             <span className="h-5 w-2.5 bg-[#1a1f3d]" />
             <span className="font-display text-base font-bold tracking-[-0.01em] whitespace-nowrap">
@@ -34,7 +34,7 @@ export default async function LoginPage({
           </div>
 
           <div className="mt-11 lg:mt-12">
-            <h1 className="font-display text-[34px] leading-[1.05] font-bold tracking-[-0.035em]">
+            <h1 className="font-display text-[34px] leading-[1.05] font-bold tracking-[-0.035em] lg:text-[42px]">
               Welcome back
             </h1>
             <p className="mt-2.5 max-w-[38ch] text-sm leading-relaxed text-[#605d5d]">
@@ -61,21 +61,13 @@ export default async function LoginPage({
           </div>
         </div>
 
-        <div className="relative hidden min-h-[640px] overflow-hidden lg:block">
+        <div className="relative hidden min-h-[780px] overflow-hidden lg:block">
           <LoginArt />
 
           <span className="absolute top-8 left-8 bg-[#1a1f3d] px-[9px] py-1.5 font-code text-[10px] tracking-[0.16em] whitespace-nowrap text-[#f3f2f2] uppercase">
             Internal tool
           </span>
 
-          <div className="absolute bottom-[52px] left-8 max-w-[240px] bg-[#f3f2f2] px-5 py-[18px]">
-            <p className="font-code text-[10px] tracking-[0.14em] text-[#7d7979] uppercase">
-              Issued · verified · revocable
-            </p>
-            <p className="font-display mt-2 text-[19px] leading-[1.2] font-semibold tracking-[-0.02em] text-[#201e1d]">
-              Every certificate carries a QR code anyone can check.
-            </p>
-          </div>
         </div>
       </div>
     </main>

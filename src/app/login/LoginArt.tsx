@@ -18,7 +18,7 @@ export function LoginArt() {
       aria-hidden="true"
       fill
       priority
-      sizes="(min-width: 1024px) 480px, 100vw"
+      sizes="(min-width: 1024px) 620px, 100vw"
       className="object-cover grayscale contrast-[1.08]"
     />
   );

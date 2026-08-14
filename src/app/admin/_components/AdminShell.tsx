@@ -12,12 +12,6 @@ export interface NavItem {
   icon: string;
 }
 
-export interface NavGroup {
-  /** Section heading. Hidden when the rail is collapsed. */
-  label: string;
-  items: NavItem[];
-}
-
 /** All 24x24, stroke-based, drawn on one grid so they align optically. */
 export const NAV_ICONS = {
   inbox: "M3 12h4l2 3h6l2-3h4M5 5h14l2 7v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5l2-7Z",
@@ -67,13 +61,13 @@ function isActive(pathname: string, href: string) {
 }
 
 export function AdminShell({
-  groups,
+  items,
   userName,
   userRole,
   initialCollapsed,
   children,
 }: {
-  groups: NavGroup[];
+  items: NavItem[];
   userName: string;
   userRole: string;
   initialCollapsed: boolean;
@@ -163,45 +157,30 @@ export function AdminShell({
           )}
         </div>
 
-        {/* Sections */}
-        <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Admin sections">
-          {groups.map((group) => (
-            <div key={group.label}>
-              {railed ? (
-                <div className="mx-3 mb-2 h-px bg-line" />
-              ) : (
-                <div className="mb-1.5 px-3 text-[11px] font-semibold tracking-[0.08em] text-muted uppercase">
-                  {group.label}
-                </div>
-              )}
-
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const active = isActive(pathname, item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      // Dismisses the drawer on navigation; a no-op at lg.
-                      onClick={() => setOpen(false)}
-                      aria-current={active ? "page" : undefined}
-                      title={railed ? item.label : undefined}
-                      className={`flex items-center gap-3 rounded-lg py-2.5 text-sm transition ${
-                        railed ? "justify-center px-2" : "px-3"
-                      } ${
-                        active
-                          ? "bg-brand-soft font-semibold text-brand"
-                          : "text-muted hover:bg-brand-soft/60 hover:text-brand"
-                      }`}
-                    >
-                      <Icon d={item.icon} />
-                      {railed ? null : item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4" aria-label="Admin sections">
+          {items.map((item) => {
+            const active = isActive(pathname, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                // Dismisses the drawer on navigation; a no-op at lg.
+                onClick={() => setOpen(false)}
+                aria-current={active ? "page" : undefined}
+                title={railed ? item.label : undefined}
+                className={`flex items-center gap-3 rounded-lg py-2.5 text-sm transition ${
+                  railed ? "justify-center px-2" : "px-3"
+                } ${
+                  active
+                    ? "bg-brand-soft font-semibold text-brand"
+                    : "text-muted hover:bg-brand-soft/60 hover:text-brand"
+                }`}
+              >
+                <Icon d={item.icon} />
+                {railed ? null : item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Account */}

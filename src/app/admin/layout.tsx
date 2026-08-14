@@ -4,7 +4,7 @@ import {
   AdminShell,
   COLLAPSE_COOKIE,
   NAV_ICONS,
-  type NavGroup,
+  type NavItem,
 } from "./_components/AdminShell";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -12,35 +12,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // renders admin markup even if middleware were bypassed.
   const user = await requireUser();
 
-  const groups: NavGroup[] = [
-    {
-      label: "Main",
-      items: [
-        { href: "/admin", label: "Submissions", icon: NAV_ICONS.inbox },
-        { href: "/admin/certificates", label: "Certificates", icon: NAV_ICONS.award },
-      ],
-    },
-    {
-      label: "Configure",
-      items: [
-        { href: "/admin/settings/email", label: "Email", icon: NAV_ICONS.mail },
-        { href: "/admin/template", label: "Template", icon: NAV_ICONS.layout },
-      ],
-    },
+  const items: NavItem[] = [
+    { href: "/admin", label: "Submissions", icon: NAV_ICONS.inbox },
+    { href: "/admin/certificates", label: "Certificates", icon: NAV_ICONS.award },
+    { href: "/admin/settings/email", label: "Email", icon: NAV_ICONS.mail },
+    { href: "/admin/template", label: "Template", icon: NAV_ICONS.layout },
   ];
 
   // Hiding this is convenience only — /admin/users re-checks the role
   // server-side, so an hr user typing the URL still gets sent back.
   if (user.can.manageUsers) {
-    groups.push({
-      label: "Account",
-      items: [{ href: "/admin/users", label: "Users", icon: NAV_ICONS.users }],
-    });
+    items.push({ href: "/admin/users", label: "Users", icon: NAV_ICONS.users });
   }
 
   return (
     <AdminShell
-      groups={groups}
+      items={items}
       userName={user.fullName ?? user.email}
       userRole={user.role === "admin" ? "Administrator" : "HR / Staff"}
       initialCollapsed={(await cookies()).get(COLLAPSE_COOKIE)?.value === "1"}

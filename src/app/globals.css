@@ -28,6 +28,9 @@
   --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Sign-in screen only — see src/app/login. */
+  --font-display: var(--font-archivo);
+  --font-code: var(--font-roboto-mono);
 }
 
 body {

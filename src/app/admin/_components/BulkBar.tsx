@@ -146,7 +146,7 @@ export function BulkBar({
   }
 
   return (
-    <div className="sticky bottom-0 z-10 -mx-4 border-t border-line bg-surface/95 px-4 py-3 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] backdrop-blur sm:-mx-6 sm:px-6">
+    <div className="sticky bottom-0 z-10 -mx-4 border-t border-line bg-surface/95 px-4 py-3 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
       <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3">
         <span className="text-sm font-medium">
           {selected.length} selected

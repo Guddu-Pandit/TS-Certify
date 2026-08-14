@@ -27,7 +27,7 @@ export default async function LoginPage({
 
         <div className="flex flex-col px-6 py-10 sm:px-13 sm:py-14">
           <div className="flex items-center gap-2.5">
-            <span className="h-5 w-2.5 bg-[#ec3013]" />
+            <span className="h-5 w-2.5 bg-[#1a1f3d]" />
             <span className="font-display text-base font-bold tracking-[-0.01em] whitespace-nowrap">
               TS Certify
             </span>
@@ -52,7 +52,7 @@ export default async function LoginPage({
               Accounts are created by an administrator. There is no public sign-up — contact{" "}
               <a
                 href="mailto:hr@tscertify.org"
-                className="text-[#ae1800] underline-offset-[3px] hover:text-[#ec3013]"
+                className="text-[#1a1f3d] underline underline-offset-[3px] hover:text-[#3d4780]"
               >
                 hr@tscertify.org
               </a>
@@ -64,13 +64,13 @@ export default async function LoginPage({
         <div className="relative hidden min-h-[640px] overflow-hidden lg:block">
           <LoginArt />
 
-          <span className="absolute top-8 left-8 bg-[#ec3013] px-[9px] py-1.5 font-code text-[10px] tracking-[0.16em] whitespace-nowrap text-[#f3f2f2] uppercase">
+          <span className="absolute top-8 left-8 bg-[#1a1f3d] px-[9px] py-1.5 font-code text-[10px] tracking-[0.16em] whitespace-nowrap text-[#f3f2f2] uppercase">
             Internal tool
           </span>
 
           <div className="absolute bottom-[52px] left-8 max-w-[240px] bg-[#f3f2f2] px-5 py-[18px]">
             <p className="font-code text-[10px] tracking-[0.14em] text-[#7d7979] uppercase">
-              Issued · verified · disputed 0
+              Issued · verified · revocable
             </p>
             <p className="font-display mt-2 text-[19px] leading-[1.2] font-semibold tracking-[-0.02em] text-[#201e1d]">
               Every certificate carries a QR code anyone can check.

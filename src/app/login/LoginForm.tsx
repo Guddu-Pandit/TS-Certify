@@ -8,7 +8,7 @@ const labelClass =
   "font-code text-[11px] uppercase tracking-[0.1em] text-[#444141]";
 
 const fieldClass =
-  "w-full border border-[#bab6b6] bg-white px-3.5 py-3 text-sm text-[#201e1d] outline-none transition-colors placeholder:text-[#9b9797] focus:border-[#ec3013]";
+  "w-full border border-[#bab6b6] bg-white px-3.5 py-3 text-sm text-[#201e1d] outline-none transition-colors placeholder:text-[#9b9797] focus:border-[#1a1f3d]";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -16,7 +16,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="font-display flex w-full items-center justify-between bg-[#ec3013] px-[18px] py-[15px] text-sm font-bold text-[#f3f2f2] transition-colors hover:bg-[#dd2b0f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#201e1d] disabled:cursor-not-allowed disabled:opacity-60"
+      className="font-display flex w-full items-center justify-between bg-[#1a1f3d] px-[18px] py-[15px] text-sm font-bold text-[#f3f2f2] transition-colors hover:bg-[#2b3358] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1f3d] disabled:cursor-not-allowed disabled:opacity-60"
     >
       <span className="whitespace-nowrap">{pending ? "Signing in…" : "Sign in"}</span>
       <span aria-hidden="true">→</span>

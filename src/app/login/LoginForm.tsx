@@ -19,7 +19,9 @@ function SubmitButton() {
       className="font-display flex w-full items-center justify-between bg-[#1a1f3d] px-[18px] py-[15px] text-sm font-bold text-[#f3f2f2] transition-colors hover:bg-[#2b3358] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1f3d] disabled:cursor-not-allowed disabled:opacity-60"
     >
       <span className="whitespace-nowrap">{pending ? "Signing in…" : "Sign in"}</span>
-      <span aria-hidden="true">→</span>
+      <span aria-hidden="true" className="text-[#f0a422]">
+        →
+      </span>
     </button>
   );
 }
@@ -55,6 +57,25 @@ export function LoginForm({ next }: { next: string }) {
           className={fieldClass}
         />
       </label>
+
+      <div className="mt-3 flex items-center justify-between gap-4">
+        <label className="flex cursor-pointer items-center gap-2 text-[13px] text-[#605d5d]">
+          <input
+            type="checkbox"
+            name="remember"
+            className="h-[15px] w-[15px] accent-[#1a1f3d]"
+          />
+          <span className="whitespace-nowrap">Keep me signed in</span>
+        </label>
+        <a
+          href="https://tech-synergy.in/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[13px] whitespace-nowrap text-[#1a1f3d] underline underline-offset-[3px] hover:text-[#3d4780]"
+        >
+          Forgot password?
+        </a>
+      </div>
 
       {state.error ? (
         <p

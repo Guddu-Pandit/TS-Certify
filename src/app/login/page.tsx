@@ -27,7 +27,10 @@ export default async function LoginPage({
 
         <div className="flex flex-col px-6 py-12 sm:px-16 sm:py-16">
           <div className="flex items-center gap-2.5">
-            <span className="h-5 w-2.5 bg-[#1a1f3d]" />
+            <span className="flex h-5 w-2.5 flex-col">
+              <span className="flex-1 bg-[#1a1f3d]" />
+              <span className="h-1.5 bg-[#f0a422]" />
+            </span>
             <span className="font-display text-base font-bold tracking-[-0.01em] whitespace-nowrap">
               TS Certify
             </span>
@@ -51,10 +54,12 @@ export default async function LoginPage({
             <p className="mt-3.5 text-[12.5px] leading-relaxed text-[#605d5d]">
               Accounts are created by an administrator. There is no public sign-up — contact{" "}
               <a
-                href="mailto:hr@tscertify.org"
+                href="https://tech-synergy.in/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-[#1a1f3d] underline underline-offset-[3px] hover:text-[#3d4780]"
               >
-                hr@tscertify.org
+                Tech Synergy
               </a>
               .
             </p>
@@ -64,7 +69,7 @@ export default async function LoginPage({
         <div className="relative hidden min-h-[780px] overflow-hidden lg:block">
           <LoginArt />
 
-          <span className="absolute top-8 left-8 bg-[#1a1f3d] px-[9px] py-1.5 font-code text-[10px] tracking-[0.16em] whitespace-nowrap text-[#f3f2f2] uppercase">
+          <span className="absolute top-8 left-8 bg-[#1a1f3d] px-[9px] py-1.5 font-code text-[10px] tracking-[0.16em] whitespace-nowrap text-[#f0a422] uppercase">
             Internal tool
           </span>
 

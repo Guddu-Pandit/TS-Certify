@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { signIn, type LoginState } from "./actions";
@@ -67,14 +68,12 @@ export function LoginForm({ next }: { next: string }) {
           />
           <span className="whitespace-nowrap">Keep me signed in</span>
         </label>
-        <a
-          href="https://tech-synergy.in/"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href="/forgot-password"
           className="text-[13px] whitespace-nowrap text-[#1a1f3d] underline underline-offset-[3px] hover:text-[#3d4780]"
         >
           Forgot password?
-        </a>
+        </Link>
       </div>
 
       {state.error ? (

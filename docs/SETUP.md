@@ -36,7 +36,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...          # SECRET — bypasses all security
 
 ### Run the SQL
 
-**SQL Editor → New query.** Run these four files in order, one at a time:
+**SQL Editor → New query.** Run these five files in order, one at a time:
 
 | Order | File | Creates |
 |---|---|---|
@@ -44,8 +44,9 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...          # SECRET — bypasses all security
 | 2 | `supabase/002_rls.sql` | Locks every table down; opens one public read for the verify page |
 | 3 | `supabase/003_seed.sql` | Default email template + 3 test students |
 | 4 | `supabase/004_manual_edits.sql` | Lets staff fill in fields the form left blank, and keeps those edits through re-syncs |
+| 5 | `supabase/005_certificate_layout.sql` | Stores the certificate field positions edited at /admin/template |
 
-All four are safe to re-run, so a mistake is recoverable.
+All five are safe to re-run, so a mistake is recoverable.
 
 > Your editor may underline these files in red. That's a SQL Server linter misreading PostgreSQL — `create extension`, `create policy` and `$$` blocks are all valid Postgres. Ignore it.
 
@@ -211,12 +212,15 @@ delete from public.submissions where source_key like 'seed-%';
 
 ## 6. Your own certificate design
 
-1. Save your artwork as `assets/templates/certificate.png`.
+The shipped artwork is `assets/templates/certificate2.png` (2000×1414). To use your own:
+
+1. Save it as `assets/templates/certificate2.png`, or point `TEMPLATE.file` in `src/config/template.ts` at your filename.
 2. Set `width` and `height` in `src/config/template.ts` to its **exact** pixel size.
    The renderer refuses to run on a mismatch rather than producing subtly misaligned certificates.
-3. Open **/admin/template** and click where each field belongs. It reports the exact coordinates to paste in.
+3. Open **/admin/template** and drag each line where it belongs. Add lines, remove them, or switch one off — and hit **Preview** to render a real sample. Positions save to the database, so this needs `supabase/005_certificate_layout.sql`.
 4. `npm run render:sample` → check `sample/`. It renders three cases including a deliberately absurd 47-character name, to prove nothing spills over your borders.
-5. Repeat until it looks right. The loop takes about a second.
+
+The artwork itself is never edited by the app — text is composited on top of it every time.
 
 ---
 

@@ -134,13 +134,33 @@ The right-hand pane previews the result against a sample student as you type. If
 
 ## Changing the certificate design
 
-Everything about the layout lives in one file: `src/config/template.ts`. No coordinate appears anywhere else in the codebase.
+There are two separate things here, and keeping them apart is the whole point:
 
-### Swapping in your own artwork
+| | Where it lives | Who changes it |
+|---|---|---|
+| The **artwork** | `assets/templates/certificate2.png` | A designer, by replacing the file |
+| **Where text sits** on it | `public.certificate_layouts`, edited at **/admin/template** | Staff, from the browser |
 
-1. Save it as `assets/templates/certificate.png`.
-2. Set `width`/`height` in the config to its **exact** pixel dimensions.
-3. Open **Template** in the nav and click where each field belongs — it reports the coordinates.
+The renderer never modifies the artwork. It loads the image, draws the text and the QR on top, and saves the result — so a layout you dislike is always one **Reset to defaults** away from the positions in `src/config/template.ts`.
+
+### Moving what gets printed
+
+Open **Template** in the nav.
+
+- **Drag a marker** to move a line. Arrow keys nudge by 1px, Shift+arrow by 10.
+- The panel on the right sets the text, font, size, colour, alignment and max width of whatever is selected.
+- **Print** off keeps a line's position but leaves it off the certificate. `domain` and `institution` ship off, because the artwork's own paragraph already covers the internship.
+- **+ Add line** prints anything else you want — literal text, `{{tokens}}`, or both: `Awarded in {{domain}}`. Same placeholders as the email editor.
+- **Preview** renders a real sample through the actual generator. Use the *very long name* sample before trusting a max width — the browser markers cannot show you shrinking or clipping.
+- **Save** applies to certificates generated **from then on**. Already-issued PDFs are frozen snapshots; re-generate a submission to move it onto the new layout.
+
+Saving needs `supabase/005_certificate_layout.sql` to have been applied. Without it the screen still works, but says it is falling back to defaults.
+
+### Swapping in different artwork
+
+1. Save it as `assets/templates/certificate2.png` (or point `TEMPLATE.file` at your filename).
+2. Set `width`/`height` in `src/config/template.ts` to its **exact** pixel dimensions.
+3. Reposition the fields at **/admin/template**.
 4. `npm run render:sample`, look at `sample/`, adjust, repeat.
 
 The renderer **refuses to run** if the image size doesn't match the config. That is deliberate: a mismatch would place every field slightly wrong and produce plausible-looking but incorrect certificates, which is worse than an error.
@@ -148,23 +168,25 @@ The renderer **refuses to run** if the image size doesn't match the config. That
 ### Field settings
 
 ```ts
-fullName: {
-  x: 1754, y: 1190,        // y is the text BASELINE, not the top
-  align: "center",         // decides whether x is the left, centre or right edge
+{
+  key: "fullName",
+  label: "Recipient name",   // what the editor calls it
+  text: "{{name}}",          // literal text and placeholders
+  x: 1000, y: 720,           // y is the text BASELINE, not the top
+  align: "center",           // decides whether x is the left, centre or right edge
   font: "GreatVibes",
-  size: 190,
-  color: "#12284c",
-  maxWidth: 2000,          // shrink to stay inside this
-  minSize: 90,             // shrink floor — then wrap instead
-  wrap: true,              // allow a second line (names only)
-},
+  size: 130,
+  color: "#c9a227",
+  maxWidth: 1150,            // shrink to stay inside this
+  minSize: 60,               // shrink floor — then wrap instead
+  wrap: true,                // allow a second line (names only)
+  enabled: true,             // off = keep the position, skip the printing
+}
 ```
-
-`print: [...]` at the bottom of the file controls which fields are actually drawn. Remove one to leave it off the certificate while keeping its coordinates. `institution` is off by default.
 
 ### Resolution
 
-The default is 3508×2480 — A4 landscape at 300 dpi, which prints crisply. Anything much smaller will look soft in print.
+The current artwork is 2000×1414. That prints acceptably at A4 landscape but is not 300 dpi — if you need print-shop sharpness, ask for the same design exported at 3508×2480 and update `width`/`height`.
 
 ---
 

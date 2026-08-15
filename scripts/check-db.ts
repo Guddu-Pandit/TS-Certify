@@ -60,6 +60,12 @@ async function main() {
     pass("admin_submissions_v has edit columns");
   }
 
+  // Added by 005. Certificates still render without it — the code defaults
+  // apply — but /admin/template cannot save a change.
+  const { error: layoutError } = await admin.from("certificate_layouts").select("key").limit(1);
+  if (layoutError) fail("table certificate_layouts", "run supabase/005_certificate_layout.sql");
+  else pass("table certificate_layouts", "layout edits can be saved");
+
   // The email template the send flow reads. Missing it means 003_seed.sql did not run.
   const { data: tpl } = await admin
     .from("email_templates")

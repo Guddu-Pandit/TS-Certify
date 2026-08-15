@@ -666,9 +666,28 @@ export function LayoutEditor({
 
 /* ---------------------------------------------------------------- inspectors */
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+/**
+ * `compact` stacks the label above the input. Side-by-side labels are nicer to
+ * scan, but inside the two-column x/y grid they leave the number box too
+ * narrow to read the value in.
+ */
+function Row({
+  label,
+  compact,
+  children,
+}: {
+  label: string;
+  compact?: boolean;
+  children: React.ReactNode;
+}) {
   return (
-    <label className="grid grid-cols-[92px_minmax(0,1fr)] items-center gap-2 text-sm">
+    <label
+      className={
+        compact
+          ? "block space-y-1 text-sm"
+          : "grid grid-cols-[92px_minmax(0,1fr)] items-center gap-2 text-sm"
+      }
+    >
       <span className="text-muted">{label}</span>
       {children}
     </label>
@@ -758,10 +777,10 @@ function FieldInspector({
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <Row label="x">
+        <Row label="x" compact>
           <NumberBox value={field.x} disabled={disabled} onChange={(v) => onChange({ x: v ?? 0 })} />
         </Row>
-        <Row label="y">
+        <Row label="y" compact>
           <NumberBox value={field.y} disabled={disabled} onChange={(v) => onChange({ y: v ?? 0 })} />
         </Row>
       </div>
@@ -913,14 +932,14 @@ function QrInspector({
       </p>
 
       <div className="grid grid-cols-2 gap-2">
-        <Row label="x">
+        <Row label="x" compact>
           <NumberBox
             value={qr.x}
             disabled={disabled}
             onChange={(v) => onChange({ ...qr, x: v ?? 0 })}
           />
         </Row>
-        <Row label="y">
+        <Row label="y" compact>
           <NumberBox
             value={qr.y}
             disabled={disabled}

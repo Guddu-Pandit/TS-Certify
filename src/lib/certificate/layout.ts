@@ -102,15 +102,27 @@ export async function loadLayout(): Promise<LoadedLayout> {
     problem,
   });
 
-  const { data, error } = await supabaseAdmin()
-    .from("certificate_layouts")
-    .select("fields, qr, updated_at")
-    .eq("key", ACTIVE_LAYOUT_KEY)
-    .maybeSingle<{ fields: unknown; qr: unknown; updated_at: string }>();
+  // Wrapped because this must never be the reason a certificate fails to
+  // render: `npm run render:sample` runs with no database at all, and a
+  // missing table just means 005_certificate_layout.sql has not been applied
+  // yet. Either way the defaults are a perfectly good certificate.
+  let data: { fields: unknown; qr: unknown; updated_at: string } | null = null;
 
-  // A missing table means supabase/005_certificate_layout.sql has not been
-  // applied yet. Rendering still works — it just cannot be customised.
-  if (error) return fallback(`Could not read the saved layout: ${error.message}`);
+  try {
+    const result = await supabaseAdmin()
+      .from("certificate_layouts")
+      .select("fields, qr, updated_at")
+      .eq("key", ACTIVE_LAYOUT_KEY)
+      .maybeSingle<{ fields: unknown; qr: unknown; updated_at: string }>();
+
+    if (result.error) return fallback(`Could not read the saved layout: ${result.error.message}`);
+    data = result.data;
+  } catch (err) {
+    return fallback(
+      `Could not reach the database: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
   if (!data) return fallback(null);
 
   const parsed = layoutSchema.safeParse({ fields: data.fields, qr: data.qr });

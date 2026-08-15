@@ -85,8 +85,8 @@ Each `check:*` script isolates one integration, so a failure tells you *which* t
 | To change… | Edit |
 |---|---|
 | Which form question feeds which column | [`src/config/field-map.ts`](src/config/field-map.ts) |
-| Where text sits on the certificate | [`src/config/template.ts`](src/config/template.ts) — or use the **Template** screen |
-| The certificate artwork | Replace `assets/templates/certificate.png` |
+| Where text sits on the certificate | The **Template** screen — drag it, no code, no redeploy. Defaults live in [`src/config/template.ts`](src/config/template.ts) |
+| The certificate artwork | Replace `assets/templates/certificate2.png` (never edited by the app) |
 | The email wording | The **Email** screen — no code, no redeploy |
 | How duration is worded | `durationLabel()` in [`src/lib/dates.ts`](src/lib/dates.ts) — used by the certificate *and* the email |
 | Your organisation name | `ORG_NAME` in `.env` |

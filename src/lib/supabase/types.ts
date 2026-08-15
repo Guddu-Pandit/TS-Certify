@@ -33,6 +33,9 @@ export function can(role: AppRole) {
     sendEmails: true,
     revokeCertificates: true,
     editEmailTemplate: true,
+    // Same reasoning as the email wording: whoever is working the queue is the
+    // one who spots that the name sits two millimetres too low.
+    editTemplateLayout: true,
     // Both roles: an hr user is the one working the queue, and a row the form
     // left incomplete is unusable until someone fills it in.
     editSubmissions: true,
@@ -159,6 +162,17 @@ export interface EmailTemplateRow {
   body_html: string;
   body_text: string;
   attachment_name: string;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+/** public.certificate_layouts — editable field positions. See 005_certificate_layout.sql. */
+export interface CertificateLayoutRow {
+  key: string;
+  /** LayoutField[] — validated by src/lib/certificate/layout.ts, not by the DB. */
+  fields: unknown;
+  /** QrBox. */
+  qr: unknown;
   updated_at: string;
   updated_by: string | null;
 }

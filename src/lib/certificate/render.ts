@@ -27,7 +27,7 @@ async function loadTemplate() {
   if (!fs.existsSync(abs)) {
     throw new Error(
       `Certificate template not found at ${TEMPLATE.file}.\n` +
-        `Put your design there, or run \`node scripts/make-placeholder-template.mjs\` for a placeholder.`,
+        `Put your design there, or run \`npm run make:template\` to regenerate it.`,
     );
   }
 

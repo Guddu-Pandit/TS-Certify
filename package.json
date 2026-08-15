@@ -12,6 +12,7 @@
     "check:sheet": "tsx --conditions=react-server scripts/check-sheet.ts",
     "user:create": "tsx --conditions=react-server scripts/create-user.ts",
     "render:sample": "tsx --conditions=react-server scripts/render-sample.ts",
+    "make:template": "node scripts/make-achievement-template.mjs",
     "check:email": "tsx --conditions=react-server scripts/check-email.ts"
   },
   "dependencies": {

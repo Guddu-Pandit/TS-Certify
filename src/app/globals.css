@@ -12,9 +12,17 @@
   --foreground: #16202e;
   --muted: #667487;
   --border: #e3e7ed;
-  --brand: #12284c;
-  --brand-soft: #eef2f9;
-  --accent: #b8892f;
+  /* Brand navy and its steps. --brand-strong is the hover/pressed tone;
+     --brand-soft is the tinted fill behind active nav items and table heads. */
+  --brand: #1a1f3d;
+  --brand-strong: #2b3358;
+  --brand-soft: #eef1f8;
+  /* Gold: the secondary accent. Reads well as a mark on dark grounds and as a
+     tinted fill, but fails contrast as small text on light — so --accent-ink
+     is the readable stand-in for gold-on-white copy. */
+  --accent: #f0a422;
+  --accent-soft: #fdf3e0;
+  --accent-ink: #7a4f05;
 }
 
 @theme inline {
@@ -24,10 +32,16 @@
   --color-muted: var(--muted);
   --color-line: var(--border);
   --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
   --color-brand-soft: var(--brand-soft);
   --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Sign-in screen only — see src/app/login. */
+  --font-display: var(--font-archivo);
+  --font-code: var(--font-roboto-mono);
 }
 
 body {

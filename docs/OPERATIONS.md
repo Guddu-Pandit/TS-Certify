@@ -35,6 +35,7 @@ Status is *derived* from whether a certificate row and an email log entry exist.
 
 | Button | What it does |
 |---|---|
+| **Edit** / **Complete details** | Opens the record and lets you type in what the form did not collect. See [Filling in what the form missed](#filling-in-what-the-form-missed). |
 | **Preview** | Renders live in a new tab. **Saves nothing** — no file, no database row, no certificate ID used. Use it freely. |
 | **Generate** | Issues a certificate. |
 | **Re-generate** | Same ID, version +1, refreshed details. |
@@ -49,6 +50,58 @@ Status is *derived* from whether a certificate row and an email log entry exist.
 **Revoke** when the certificate should never have existed — issued to the wrong person, or the internship was withdrawn. The old QR immediately reports "could not be verified", which is the entire point of having verification. You can then issue a fresh certificate to that student under a new ID.
 
 > ⚠️ **Re-generating does not recall an email already sent.** The student still has the old PDF in their inbox. The app warns you and offers Resend.
+
+---
+
+## Filling in what the form missed
+
+Not every row arrives complete. A student skips the end date, mistypes their email, or the
+form never had a question for their college. Those rows show what is missing rather than a
+blank dash:
+
+- The cell itself becomes a dashed **`+ email`** / **`+ domain`** button.
+- The Status column shows **"2 fields missing"**.
+- The actions column shows **Complete details** in amber instead of **Edit**.
+- **Generate** is disabled while a *required* field is blank, because it would fail anyway.
+
+Click any of them and the same dialog opens with everything you know about that person.
+Missing fields are outlined in amber and labelled with what they block:
+
+| Field | Missing means |
+|---|---|
+| Full name, Domain, Start date, End date | **No certificate can be issued** |
+| Email | The certificate can be made, but never delivered |
+| Phone, School / College | Only the record is incomplete |
+
+**Both admin and HR can edit.** Filling gaps is the day-to-day work of running the queue,
+not an administrative act.
+
+> 💡 The missing answer is often already in the sheet, in a column no field claims yet.
+> Expand **Other answers from the form** inside the dialog before going hunting.
+
+### Edits survive re-syncing
+
+This is the part that matters. `Sync now` upserts every row from the sheet, so without
+protection your hand-typed end date would be replaced by the blank cell it came from on the
+very next sync.
+
+Every field you change is recorded as **manually owned**. The sync re-applies those on top
+of the sheet data, so the edit is permanent. Sync reports how many rows this affected:
+*"3 rows kept hand-typed values instead of the sheet's."* Edited rows carry a ✎ next to the
+name.
+
+**To hand a row back to the sheet** — you fixed the mistake in Google Forms, or you typed
+the wrong thing — open it and click **Release to sheet**. The stored values stay as they
+are; the next sync is simply free to overwrite them again.
+
+> ⚠️ **Editing does not change a certificate already issued.** Certificates hold their own
+> snapshot on purpose. Fill in the details, then **Re-generate** to pick them up.
+
+### Adding another editable field
+
+`src/config/editable-fields.ts` is the whole list. Add an entry — the column must exist on
+`public.submissions` — and it appears in the dialog, in the missing-field counts, and in the
+sync's protection, with no other change.
 
 ---
 

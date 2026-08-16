@@ -8,7 +8,11 @@ export default function AdminLoading() {
         <div className="h-4 w-64 animate-pulse rounded bg-black/5" />
       </div>
 
-      <div className="h-9 w-28 animate-pulse rounded-lg bg-black/8" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-18.5 animate-pulse rounded-xl bg-black/8" />
+        ))}
+      </div>
 
       <div className="overflow-hidden rounded-xl border border-line bg-surface">
         <div className="h-11 border-b border-line bg-brand-soft/40" />

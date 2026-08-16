@@ -2,7 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { supabaseServer } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import {
+  REMEMBER_COOKIE,
+  REMEMBER_MAX_AGE,
+  supabaseServer,
+} from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export interface LoginState {
@@ -13,12 +18,15 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/admin");
+  const remember = formData.get("remember") === "on";
 
   if (!email || !password) {
     return { error: "Enter both your email and password." };
   }
 
-  const supabase = await supabaseServer();
+  // Passed explicitly: the auth cookies are written during signInWithPassword,
+  // before REMEMBER_COOKIE below exists for the client to read.
+  const supabase = await supabaseServer({ remember });
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error || !data.user) {
@@ -45,6 +53,20 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
     return { error: "This account has been deactivated." };
   }
 
+  // Remember the choice so later token refreshes reuse the same lifetime.
+  const jar = await cookies();
+  if (remember) {
+    jar.set(REMEMBER_COOKIE, "1", {
+      maxAge: REMEMBER_MAX_AGE,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+    });
+  } else {
+    jar.delete(REMEMBER_COOKIE);
+  }
+
   revalidatePath("/", "layout");
   // Only same-site paths, so a crafted ?next=https://evil.example cannot turn
   // the login form into an open redirect.
@@ -55,6 +77,7 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
 export async function signOut() {
   const supabase = await supabaseServer();
   await supabase.auth.signOut();
+  (await cookies()).delete(REMEMBER_COOKIE);
   revalidatePath("/", "layout");
   redirect("/login");
 }

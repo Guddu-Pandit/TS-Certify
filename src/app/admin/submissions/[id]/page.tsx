@@ -4,7 +4,9 @@ import { requireUser } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { CertificateRow, EmailLogRow, SubmissionRow } from "@/lib/supabase/types";
 import { durationSentence, formatDate, formatDateTime } from "@/lib/dates";
+import { missingFields } from "@/config/editable-fields";
 import { StatusBadge } from "../../_components/StatusBadge";
+import { EditSubmissionButton } from "../../_components/EditSubmissionButton";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +53,9 @@ export default async function SubmissionDetailPage({
   const extra = submission.extra as Record<string, string>;
   const raw = submission.raw as Record<string, string>;
 
+  const gaps = missingFields(submission);
+  const blocking = gaps.filter((f) => f.importance === "required");
+
   const status = !certs.length
     ? "new"
     : !active
@@ -67,11 +72,33 @@ export default async function SubmissionDetailPage({
         <Link href="/admin" className="text-sm text-muted underline-offset-2 hover:text-brand hover:underline">
           ← Back to submissions
         </Link>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-bold tracking-tight">{submission.full_name}</h1>
-          <StatusBadge status={status} />
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-xl font-bold tracking-tight">{submission.full_name}</h1>
+            <StatusBadge status={status} />
+            {submission.edited_at ? (
+              <span className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-xs text-muted">
+                edited by hand {formatDate(submission.edited_at)}
+              </span>
+            ) : null}
+          </div>
+          <EditSubmissionButton submission={submission} />
         </div>
       </div>
+
+      {gaps.length > 0 ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-medium">
+            The form did not fill in {gaps.map((f) => f.label.toLowerCase()).join(", ")}.
+          </p>
+          <p className="mt-1">
+            {blocking.length > 0
+              ? "No certificate can be issued until these are filled in."
+              : "A certificate can still be issued — these are only missing from the record."}{" "}
+            Check the raw sheet row below in case the answer landed in another column.
+          </p>
+        </div>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Details">
@@ -83,6 +110,7 @@ export default async function SubmissionDetailPage({
           <Field label="Submitted" value={formatDateTime(submission.submitted_at)} />
           <Field label="Last synced" value={formatDateTime(submission.synced_at)} />
           <Field label="Sheet row" value={submission.source_row ? `#${submission.source_row}` : null} />
+          <Field label="Notes" value={submission.notes} />
         </Card>
 
         <Card title="Certificates">

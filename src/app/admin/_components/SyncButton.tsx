@@ -74,6 +74,14 @@ function SyncSummary({ result }: { result: SyncResult }) {
         <span className="text-muted">{result.sheetRows} rows read</span>
       </p>
 
+      {result.preserved > 0 ? (
+        <p className="text-muted">
+          {result.preserved} row{result.preserved === 1 ? "" : "s"} kept hand-typed values instead
+          of the sheet&apos;s. Open a row and use{" "}
+          <span className="font-medium">Release to sheet</span> to undo that.
+        </p>
+      ) : null}
+
       {result.missingFields.length > 0 ? (
         <p className="text-amber-800">
           No sheet column matched: <strong>{result.missingFields.join(", ")}</strong>. Add the

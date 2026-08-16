@@ -41,6 +41,25 @@ async function main() {
   }
   await checkTable("admin_submissions_v");
 
+  // Added by 004. Without these, editing a submission fails at write time and
+  // the sync silently stops preserving hand-typed values.
+  const { error: editColsError } = await admin
+    .from("submissions")
+    .select("manual_overrides, edited_at, edited_by")
+    .limit(1);
+  if (editColsError) fail("manual edit columns", "run supabase/004_manual_edits.sql");
+  else pass("manual edit columns", "manual_overrides, edited_at, edited_by");
+
+  const { error: viewColsError } = await admin
+    .from("admin_submissions_v")
+    .select("notes, manual_overrides, edited_at")
+    .limit(1);
+  if (viewColsError) {
+    fail("admin_submissions_v has edit columns", "re-run supabase/004_manual_edits.sql");
+  } else {
+    pass("admin_submissions_v has edit columns");
+  }
+
   // The email template the send flow reads. Missing it means 003_seed.sql did not run.
   const { data: tpl } = await admin
     .from("email_templates")

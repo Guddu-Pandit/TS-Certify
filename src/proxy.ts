@@ -62,13 +62,17 @@ export const config = {
   matcher: [
     /*
      * Everything except:
-     *   /login          the sign-in page itself (would loop)
-     *   /verify/*       the public QR verification page — must stay open
-     *   /api/verify/*   data for that page
-     *   /api/cron/*     called by Vercel Cron, authorised by CRON_SECRET instead
-     *   /auth/*         Supabase auth callbacks
+     *   /login            the sign-in page itself (would loop)
+     *   /forgot-password  requesting a reset — by definition nobody is signed in
+     *   /reset-password   choosing a new one. Reachable signed-out too, so the
+     *                     page itself can explain that a link has expired
+     *                     rather than bouncing to /login with no explanation
+     *   /verify/*         the public QR verification page — must stay open
+     *   /api/verify/*     data for that page
+     *   /api/cron/*       called by Vercel Cron, authorised by CRON_SECRET instead
+     *   /auth/*           Supabase auth callbacks
      *   static assets and image files
      */
-    "/((?!login|verify|api/verify|api/cron|auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!login|forgot-password|reset-password|verify|api/verify|api/cron|auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

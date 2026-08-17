@@ -1,10 +1,17 @@
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import path from "node:path";
 import fs from "node:fs";
-import { TEMPLATE, type TemplateFieldKey } from "@/config/template";
+import {
+  applyTokens,
+  TEMPLATE,
+  type Layout,
+  type TokenValues,
+} from "@/config/template";
+import { appEnv } from "@/config/env";
 import { registerFonts } from "./fonts";
 import { drawField } from "./text";
 import { certificateQr } from "./qr";
+import { loadLayout } from "./layout";
 import { durationSentence, formatDate } from "@/lib/dates";
 
 export interface CertificateData {
@@ -17,7 +24,7 @@ export interface CertificateData {
   issuedOn: string | Date;
 }
 
-/** Loaded once — re-reading a 3.5k-pixel PNG on every request is pure waste. */
+/** Loaded once — re-reading the template PNG on every request is pure waste. */
 let templateCache: { buffer: Buffer; width: number; height: number } | null = null;
 
 async function loadTemplate() {
@@ -27,14 +34,14 @@ async function loadTemplate() {
   if (!fs.existsSync(abs)) {
     throw new Error(
       `Certificate template not found at ${TEMPLATE.file}.\n` +
-        `Put your design there, or run \`node scripts/make-placeholder-template.mjs\` for a placeholder.`,
+        `Put the artwork there — the renderer never modifies it, it only draws on top.`,
     );
   }
 
   const buffer = fs.readFileSync(abs);
   const img = await loadImage(buffer);
 
-  // Refuse to render on a size mismatch. Every coordinate in template.ts is
+  // Refuse to render on a size mismatch. Every coordinate in the layout is
   // measured against these dimensions, so a differently-sized image would
   // place every field in the wrong spot — and would do it silently, producing
   // plausible-looking but wrong certificates.
@@ -52,15 +59,23 @@ async function loadTemplate() {
   return templateCache;
 }
 
-/** Values for each printable field, derived from the certificate data. */
-function fieldValues(data: CertificateData): Record<TemplateFieldKey, string> {
+/** Everything a field's `text` may reference. */
+export function tokenValues(data: CertificateData): TokenValues {
+  const name = data.fullName;
+
   return {
-    fullName: data.fullName,
+    name,
+    firstName: name.trim().split(/\s+/)[0] ?? name,
     domain: data.domain ?? "",
+    // One function decides this wording, so changing it changes the
+    // certificate and the email together.
     duration: durationSentence(data.startDate, data.endDate),
+    startDate: formatDate(data.startDate),
+    endDate: formatDate(data.endDate),
     institution: data.institution ?? "",
+    certificateId: data.certificateId,
     issuedOn: formatDate(data.issuedOn),
-    certificateId: `Certificate ID: ${data.certificateId}`,
+    orgName: appEnv().ORG_NAME,
   };
 }
 
@@ -71,15 +86,23 @@ export interface RenderResult {
 }
 
 /**
- * Composites one certificate: template image, then text, then the QR code.
+ * Composites one certificate: artwork, then text, then the QR code.
+ *
+ * `layout` is normally omitted, in which case the saved layout is read from
+ * the database (falling back to the code defaults). The editor passes an
+ * explicit one so it can preview changes that have not been saved yet.
  *
  * Callers must invoke this SEQUENTIALLY when generating in bulk. Each canvas
- * holds a full RGBA bitmap — roughly 35MB at 3508x2480 — so running renders in
- * parallel will exhaust a 1GB serverless function's memory.
+ * holds a full RGBA bitmap, so running renders in parallel will exhaust a
+ * serverless function's memory.
  */
-export async function renderCertificate(data: CertificateData): Promise<RenderResult> {
+export async function renderCertificate(
+  data: CertificateData,
+  layout?: Layout,
+): Promise<RenderResult> {
   registerFonts();
   const template = await loadTemplate();
+  const active = layout ?? (await loadLayout());
 
   const canvas = createCanvas(TEMPLATE.width, TEMPLATE.height);
   const ctx = canvas.getContext("2d");
@@ -87,21 +110,36 @@ export async function renderCertificate(data: CertificateData): Promise<RenderRe
   const background = await loadImage(template.buffer);
   ctx.drawImage(background, 0, 0, TEMPLATE.width, TEMPLATE.height);
 
-  const values = fieldValues(data);
+  const values = tokenValues(data);
   const adjustedFields: string[] = [];
 
-  for (const key of TEMPLATE.print) {
-    const field = TEMPLATE.fields[key];
-    const value = values[key];
-    if (!value) continue;
+  for (const field of active.fields) {
+    if (!field.enabled) continue;
+
+    const value = applyTokens(field.text, values).trim();
+    if (!value || allTokensBlank(field.text, values)) continue;
 
     const drawn = drawField(ctx, field, value);
-    if (drawn?.adjusted) adjustedFields.push(key);
+    if (drawn?.adjusted) adjustedFields.push(field.key);
   }
 
-  const qrPng = await certificateQr(data.certificateId);
-  const qr = await loadImage(qrPng);
-  ctx.drawImage(qr, TEMPLATE.qr.x, TEMPLATE.qr.y, TEMPLATE.qr.size, TEMPLATE.qr.size);
+  if (active.qr.enabled) {
+    const qrPng = await certificateQr(data.certificateId, active.qr);
+    const qr = await loadImage(qrPng);
+    ctx.drawImage(qr, active.qr.x, active.qr.y, active.qr.size, active.qr.size);
+  }
 
   return { png: canvas.toBuffer("image/png"), adjustedFields };
+}
+
+/**
+ * True when a field's text references tokens and every one of them came back
+ * empty — "Issued on {{issuedOn}}" with no date must not print a stranded
+ * "Issued on". A caption made only of literal text has no tokens, so it always
+ * prints.
+ */
+function allTokensBlank(text: string, values: TokenValues): boolean {
+  const tokens = [...text.matchAll(/\{\{\s*(\w+)\s*\}\}/g)].map((m) => m[1]);
+  const known = tokens.filter((t) => t in values);
+  return known.length > 0 && known.every((t) => !values[t as keyof TokenValues].trim());
 }

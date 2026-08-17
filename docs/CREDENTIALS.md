@@ -63,8 +63,9 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...paste-the-service-role-key-here...
 1. Left sidebar: **SQL Editor** → **+ New query**.
 2. Open `supabase/001_schema.sql` from the project folder, copy **all** of it, paste it in, click **Run**.
 3. You should see *Success. No rows returned.*
-4. Repeat for **`supabase/002_rls.sql`**, **`supabase/003_seed.sql`**, then
-   **`supabase/004_manual_edits.sql`** — in that order.
+4. Repeat for **`supabase/002_rls.sql`**, **`supabase/003_seed.sql`**,
+   **`supabase/004_manual_edits.sql`**, then **`supabase/005_certificate_layout.sql`**
+   — in that order.
 
 > **Order matters.** `002` locks down tables that `001` creates; `003` adds data to them;
 > `004` adds the columns behind the edit dialog.

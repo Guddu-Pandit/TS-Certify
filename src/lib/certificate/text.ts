@@ -1,5 +1,5 @@
 import type { SKRSContext2D } from "@napi-rs/canvas";
-import type { TextField } from "@/config/template";
+import type { LayoutField } from "@/config/template";
 
 /**
  * Fits text into a field's maxWidth, and draws it.
@@ -19,11 +19,11 @@ import type { TextField } from "@/config/template";
  * drawing it in sharp/librsvg.
  */
 
-function setFont(ctx: SKRSContext2D, field: TextField, size: number) {
+function setFont(ctx: SKRSContext2D, field: LayoutField, size: number) {
   ctx.font = `${size}px ${field.font}`;
 }
 
-function measure(ctx: SKRSContext2D, field: TextField, size: number, s: string): number {
+function measure(ctx: SKRSContext2D, field: LayoutField, size: number, s: string): number {
   setFont(ctx, field, size);
   return ctx.measureText(s).width;
 }
@@ -49,7 +49,7 @@ function splitBalanced(value: string): [string, string] | null {
   return [words.slice(0, best).join(" "), words.slice(best).join(" ")];
 }
 
-function truncate(ctx: SKRSContext2D, field: TextField, size: number, s: string, max: number): string {
+function truncate(ctx: SKRSContext2D, field: LayoutField, size: number, s: string, max: number): string {
   if (measure(ctx, field, size, s) <= max) return s;
   let out = s;
   while (out.length > 1 && measure(ctx, field, size, out + "…") > max) {
@@ -67,7 +67,7 @@ export interface DrawnText {
 
 export function drawField(
   ctx: SKRSContext2D,
-  field: TextField,
+  field: LayoutField,
   rawValue: string,
 ): DrawnText | null {
   const value = (field.uppercase ? rawValue.toUpperCase() : rawValue).trim();
